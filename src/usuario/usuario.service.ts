@@ -5,13 +5,36 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Usuario } from './entities/usuario.entity';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { HashingService } from 'src/auth/hashing/hashing.service';
 
 @Injectable()
 export class UsuarioService {
   constructor(
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
+    private readonly hashingService: HashingService,
   ) {}
+
+  async create(createUsuarioDto: CreateUsuarioDto) {
+    const passwordHash = await this.hashingService.hashPassword(
+      createUsuarioDto.password,
+    );
+
+    const existingCliente = await this.usuarioRepository.findOne({
+      where: { email: createUsuarioDto.email },
+    });
+
+    if (existingCliente) {
+      throw new BadRequestException('Email já cadastrado');
+    }
+
+    const dadosUsuario = {
+      email: createUsuarioDto.email,
+      password: passwordHash,
+    };
+    const newCliente = this.usuarioRepository.create(dadosUsuario);
+    return this.usuarioRepository.save(newCliente);
+  }
 
   async findAll(paginationDto?: PaginationDto) {
     const { limit = 10, page = 0 } = paginationDto;
@@ -40,23 +63,22 @@ export class UsuarioService {
     throw new BadRequestException('Usuario não encontrado');
   }
 
-  async create(createUsuarioDto: CreateUsuarioDto) {
-    const existingCliente = await this.usuarioRepository.findOne({
-      where: { email: createUsuarioDto.email },
-    });
+  async update(id_usuario: number, updateUsuarioDto: UpdateUsuarioDto) {
+    const dadosUsuario = {
+      email: updateUsuarioDto.email,
+    };
 
-    if (existingCliente) {
-      throw new BadRequestException('Email já cadastrado');
+    if (updateUsuarioDto?.password) {
+      const passwordHash = await this.hashingService.hashPassword(
+        updateUsuarioDto.password,
+      );
+
+      dadosUsuario['password'] = passwordHash;
     }
 
-    const newCliente = this.usuarioRepository.create(createUsuarioDto);
-    return this.usuarioRepository.save(newCliente);
-  }
-
-  async update(id_usuario: number, updateUsuarioDto: UpdateUsuarioDto) {
     const usuario = await this.usuarioRepository.preload({
       id_usuario,
-      ...updateUsuarioDto,
+      ...dadosUsuario,
     });
 
     if (!usuario) throw new BadRequestException('Usuario não encontrado');

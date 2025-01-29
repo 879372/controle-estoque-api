@@ -11,9 +11,17 @@ import { ProdutoModule } from 'src/produto/produto.module';
 import { PedidoModule } from 'src/pedido/pedido.module';
 import { ItemPedidoModule } from 'src/item_pedido/item_pedido.module';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { UsuarioModule } from 'src/usuario/usuario.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import jwtConfig from 'src/auth/config/jwt.config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [jwtConfig],
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -29,6 +37,8 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
     ProdutoModule,
     PedidoModule,
     ItemPedidoModule,
+    UsuarioModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
