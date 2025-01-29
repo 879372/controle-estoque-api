@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:3000
+
+# @name Clientes
+GET {{baseUrl}}/pedido
+###
+GET {{baseUrl}}/pedido/31
+###
+POST {{baseUrl}}/pedido
+Content-Type: application/json
+
+{
+  "clienteId": 1,
+  "status": "PENDENTE",
+  "itensPedido": [
+    {
+      "produtoId": 2,
+      "quantidade": 2
+    },
+    {
+      "produtoId": 2,
+      "quantidade": 2
+    },
+    {
+      "produtoId": 3,
+      "quantidade": 2
+    },
+    {
+      "produtoId": 3,
+      "quantidade": 2
+    }
+  ]
+}
+
+###
+PATCH {{baseUrl}}/pedido/37
+Content-Type: application/json
+
+{
+  "status": "CANCELADO"
+}
+
+###
+DELETE {{baseUrl}}/pedido/1
