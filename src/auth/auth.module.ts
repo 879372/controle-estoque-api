@@ -7,12 +7,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario]),
     ConfigModule.forFeature(jwtConfig),
+    JwtModule.registerAsync(jwtConfig.asProvider())
   ],
   controllers: [AuthController],
   providers: [
@@ -22,6 +24,6 @@ import { ConfigModule } from '@nestjs/config';
     },
     AuthService,
   ],
-  exports: [HashingService],
+  exports: [HashingService, JwtModule, ConfigModule],
 })
 export class AuthModule {}

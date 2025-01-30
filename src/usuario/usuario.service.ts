@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Usuario } from './entities/usuario.entity';
@@ -37,13 +37,20 @@ export class UsuarioService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
-    const { limit = 10, page = 0 } = paginationDto;
+    const { limit = 10, page = 0,search } = paginationDto;
     const offset = (page - 1) * limit;
+    const where: any = {};
+
+    if (search) {
+      where.email = Like(`%${search}%`);
+    }
 
     const usuarios = await this.usuarioRepository.find({
+      where,
       take: limit,
       skip: offset,
     });
+
     return {
       page: page,
       limit,

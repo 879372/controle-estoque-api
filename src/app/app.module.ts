@@ -24,13 +24,18 @@ import jwtConfig from 'src/auth/config/jwt.config';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5433,
+      host: 'richly-priceless-humpback.data-1.use1.tembo.io',
+      port: 5432,
       username: 'postgres',
-      password: '123456',
+      password: 'Umr2TSNhP2T7UkTl',
       database: 'postgres',
       autoLoadEntities: true,
       synchronize: true,
+      extra:{
+        ssl:{
+          rejectUnauthorized: false,
+        }
+      }
     }),
     TypeOrmModule.forFeature([Cliente, Produto, Pedido, ItemPedido, Usuario]),
     ClientesModule,

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { Produto } from './entities/produto.entity';
-import { Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -11,7 +11,7 @@ export class ProdutoService {
   constructor(
     @InjectRepository(Produto)
     private readonly produtoRepository: Repository<Produto>,
-  ) {}
+  ) { }
 
   async create(createProdutoDto: CreateProdutoDto) {
     const existingProduto = await this.produtoRepository.findOne({
@@ -27,13 +27,25 @@ export class ProdutoService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
-    const { limit = 10, page = 0 } = paginationDto;
+    const { limit = 10, page = 0, search, startDate, endDate } = paginationDto;
     const offset = (page - 1) * limit;
 
+    const where: any = {};
+
+    if (search) {
+      where.nome = Like(`%${search}%`);
+    }
+
+    if (startDate && endDate) {
+      where.data_validade = Between(startDate, endDate);
+    }
+
     const produto = await this.produtoRepository.find({
+      where,
       take: limit,
       skip: offset,
     });
+
     return {
       page: page,
       limit,

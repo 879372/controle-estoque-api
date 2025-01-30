@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { Pedido } from './entities/pedido.entity';
@@ -17,7 +17,7 @@ export class PedidoService {
     private readonly itemPedidoRepository: Repository<ItemPedido>,
     @InjectRepository(Produto)
     private readonly produtoRepository: Repository<Produto>,
-  ) {}
+  ) { }
 
   async create(createPedidoDto: CreatePedidoDto) {
     const { clienteId, status, itensPedido } = createPedidoDto;
@@ -134,12 +134,27 @@ export class PedidoService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
-    const { limit = 10, page = 1 } = paginationDto;
+    const { limit = 10, page = 1, search, startDate, endDate,  status } = paginationDto;
     const offset = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (search) {
+      where.cliente = Like(`%${search}%`);
+    }
+
+    if (status) {
+      where.status = Like(`%${status}%`);
+    }
+
+    if (startDate && endDate) {
+      where.data_pedido = Between(startDate, endDate);
+    }
 
     const totalRecords = await this.pedidoRepository.count();
 
     const pedidos = await this.pedidoRepository.find({
+      where,
       take: limit,
       skip: offset,
       relations: ['cliente', 'itensPedido', 'itensPedido.produto'],

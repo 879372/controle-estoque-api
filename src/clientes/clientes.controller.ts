@@ -10,12 +10,15 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientesService } from './clientes.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { AuthTokenGuard } from 'src/auth/guards/auth-token.guards';
 
+@UseGuards(AuthTokenGuard)
 @Controller('clientes')
 export class ClientesController {
   constructor(private readonly clienteService: ClientesService) {}

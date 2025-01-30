@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { Cliente } from './entities/cliente.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -14,13 +14,21 @@ export class ClientesService {
   ) {}
 
   async findAll(paginationDto?: PaginationDto) {
-    const { limit = 10, page = 0 } = paginationDto;
+    const { limit = 10, page = 0, search } = paginationDto;
     const offset = (page - 1) * limit;
 
+    const where: any = {};
+
+    if (search) {
+      where.nome = Like(`%${search}%`);
+    }
+
     const clientes = await this.clienteRepository.find({
+      where,
       take: limit,
       skip: offset,
     });
+    
     return {
       page: page,
       limit,
