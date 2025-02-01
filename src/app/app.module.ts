@@ -13,30 +13,38 @@ import { ItemPedidoModule } from 'src/item_pedido/item_pedido.module';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UsuarioModule } from 'src/usuario/usuario.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import jwtConfig from 'src/auth/config/jwt.config';
+import appConfig from './app.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [jwtConfig],
+      load: [jwtConfig, appConfig],
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'richly-priceless-humpback.data-1.use1.tembo.io',
-      port: 5432,
-      username: 'postgres',
-      password: 'Umr2TSNhP2T7UkTl',
-      database: 'postgres',
-      autoLoadEntities: true,
-      synchronize: true,
-      extra:{
-        ssl:{
-          rejectUnauthorized: false,
-        }
-      }
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [appConfig.KEY],
+      useFactory: async (appConfiguration: ConfigType<typeof appConfig>) => {
+        return {
+          type: appConfiguration.database.type,
+          host: appConfiguration.database.host,
+          port: appConfiguration.database.port,
+          username: appConfiguration.database.username,
+          password: appConfiguration.database.password,
+          database: appConfiguration.database.database,
+          autoLoadEntities: appConfiguration.database.autoLoadEntities,
+          synchronize: appConfiguration.database.synchronize,
+          extra: {
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          },
+        };
+      },
     }),
+    
     TypeOrmModule.forFeature([Cliente, Produto, Pedido, ItemPedido, Usuario]),
     ClientesModule,
     ProdutoModule,
