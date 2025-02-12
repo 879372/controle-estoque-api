@@ -13,7 +13,7 @@ import { ItemPedidoModule } from 'src/item_pedido/item_pedido.module';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { UsuarioModule } from 'src/usuario/usuario.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from 'src/auth/config/jwt.config';
 import appConfig from './app.config';
 
@@ -36,15 +36,15 @@ import appConfig from './app.config';
           database: appConfiguration.database.database,
           autoLoadEntities: appConfiguration.database.autoLoadEntities,
           synchronize: appConfiguration.database.synchronize,
-          extra: {
-            ssl: {
-              rejectUnauthorized: false,
-            },
-          },
+          // extra: {
+          //   ssl: {
+          //     rejectUnauthorized: false,
+          //   },
+          // },
         };
       },
     }),
-    
+
     TypeOrmModule.forFeature([Cliente, Produto, Pedido, ItemPedido, Usuario]),
     ClientesModule,
     ProdutoModule,
