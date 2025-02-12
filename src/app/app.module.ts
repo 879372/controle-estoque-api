@@ -36,11 +36,12 @@ import appConfig from './app.config';
           database: appConfiguration.database.database,
           autoLoadEntities: appConfiguration.database.autoLoadEntities,
           synchronize: appConfiguration.database.synchronize,
-          // extra: {
-          //   ssl: {
-          //     rejectUnauthorized: false,
-          //   },
-          // },
+          ssl: true,
+          extra: {
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          },
         };
       },
     }),
