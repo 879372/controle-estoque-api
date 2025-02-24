@@ -12,10 +12,10 @@ jobs:
          - name: 🚚 Get latest code
            uses: actions/checkout@v4
 
-         - name: 📂 Sync files to API ESTOQUE
-           if: github.ref == 'refs/heads/main'
+         - name: Deploy via FTP
            uses: SamKirkland/FTP-Deploy-Action@v4.3.5
            with:
-              server: ${{ secrets.FTP_HOST }}
-              username: ${{secrets.PROD_FTP_USER}}
-              password: ${{secrets.PROD_FTP_PASSWORD}}
+            server: "107.21.85.205"
+            username: "Apiestoque1"
+            password: ${{ secrets.PROD_FTP_PASSWORD }}
+            port: 39000
