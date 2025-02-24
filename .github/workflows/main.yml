@@ -17,7 +17,6 @@ jobs:
            with:
             server: "107.21.85.205"
             username: "Apiestoque1"
-            password: ${{ secrets.PROD_FTP_PASSWORD }}
+            password: "a35LELRNDWyYsCjp"
             port: 39000
-            protocol: ftps  # Tente 'ftp' se 'ftps' não funcionar
 
