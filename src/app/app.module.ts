@@ -36,6 +36,8 @@ import appConfig from './app.config';
           database: appConfiguration.database.database,
           autoLoadEntities: appConfiguration.database.autoLoadEntities,
           synchronize: appConfiguration.database.synchronize,
+          entities: [Cliente, Produto, Pedido, ItemPedido, Usuario],
+
           // ssl: true,
           // extra: {
           //   ssl: {
