@@ -11,7 +11,7 @@ async function bootstrap() {
     app.use(helmet());
 
     app.enableCors({
-      origin: ['http://localhost:3001', 'http://192.168.0.11:3001', 'https://controle-estoque-api-production.up.railway.app'],
+      origin: ['http://localhost:3001', 'http://192.168.0.11:3001', 'https://extremesoftware.tech/'],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       allowedHeaders: 'Content-Type, Authorization',
       credentials: true,
