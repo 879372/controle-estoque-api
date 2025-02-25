@@ -22,7 +22,6 @@ import { Request } from 'express';
 import { REQUEST_TOKEN_PAYLOAD_KEY } from 'src/auth/hashing/auth.constants';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(AuthTokenGuard)
 @ApiTags('Usuários')
 @Controller('usuario')
 export class UsuarioController {
@@ -40,6 +39,7 @@ export class UsuarioController {
   @ApiBearerAuth()
   @ApiOperation({summary: 'Obter todos os usuários com páginação'})
   @ApiResponse({status: 200, description: 'Usuários retornados com sucesso'})
+  @UseGuards(AuthTokenGuard)
   @Get()
   findAll(@Query() paginationDto: PaginationDto, @Req() req: Request) {
     console.log(req[REQUEST_TOKEN_PAYLOAD_KEY])
@@ -50,6 +50,7 @@ export class UsuarioController {
   @ApiOperation({summary: 'Obter usuário pelo seu id'})
   @ApiResponse({status: 200, description: 'Usuários retornados com sucesso'})
   @ApiParam({name: 'id', description: 'id do usuário'})
+  @UseGuards(AuthTokenGuard)
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.usuarioService.findOne(id);
@@ -59,6 +60,7 @@ export class UsuarioController {
   @ApiBearerAuth()
   @ApiOperation({summary: 'Atualizar usuário pelo seu id'})
   @ApiParam({name: 'id', description: 'id do usuário'})
+  @UseGuards(AuthTokenGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -70,6 +72,7 @@ export class UsuarioController {
   @ApiBearerAuth()
   @ApiOperation({summary: 'Apagar usuário pelo seu id'})
   @ApiParam({name: 'id', description: 'id do usuário'})
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usuarioService.delete(id);
