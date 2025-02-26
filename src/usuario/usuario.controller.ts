@@ -13,17 +13,16 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { AuthTokenGuard } from 'src/auth/guards/auth-token.guards';
 import { Request } from 'express';
-import { REQUEST_TOKEN_PAYLOAD_KEY } from 'src/auth/hashing/auth.constants';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FilterUserDto } from './dto/filter-usuario.dto';
 
 @ApiTags('Usuários')
-@Controller('usuario')
+@Controller('user')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
   
@@ -38,17 +37,49 @@ export class UsuarioController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({summary: 'Obter todos os usuários com páginação'})
-  @ApiResponse({status: 200, description: 'Usuários retornados com sucesso'})
+  @ApiResponse({
+    status: 200,
+    description: 'Usuários retornados com sucesso',
+    schema: {
+      example: {
+        page: 1,
+        limit: 10,
+        totalRecords: 4,
+        totalPages: 1,
+        usuarios: [
+          {
+            id_usuario: 2,
+            username: 'email@gmail.com',
+            createdAt: '2025-01-01T08:17:05.732Z',
+          },
+          {
+            id_usuario: 1,
+            username: 'email@gmail.com',
+            createdAt: '2025-01-01T08:17:05.732Z',
+          },
+        ],
+      },
+    },
+  })
   @UseGuards(AuthTokenGuard)
   @Get()
-  findAll(@Query() paginationDto: PaginationDto, @Req() req: Request) {
-    console.log(req[REQUEST_TOKEN_PAYLOAD_KEY])
-    return this.usuarioService.findAll(paginationDto);
+  findAll(@Query() filterUserDto: FilterUserDto, @Req() req: Request) {
+    return this.usuarioService.findAll(filterUserDto);
   }
 
   @ApiBearerAuth()
   @ApiOperation({summary: 'Obter usuário pelo seu id'})
-  @ApiResponse({status: 200, description: 'Usuários retornados com sucesso'})
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário retornado com sucesso',
+    schema: {
+      example: {
+        id_usuario: 1,
+        username: 'email@gmail.com',
+        createdAt: '2025-01-01T08:17:05.732Z',
+      },
+    },
+  })
   @ApiParam({name: 'id', description: 'id do usuário'})
   @UseGuards(AuthTokenGuard)
   @Get(':id')

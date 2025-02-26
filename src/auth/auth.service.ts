@@ -17,14 +17,14 @@ export class AuthService {
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async login(loginDto: LoginDto) {
     let passwordValid = false;
     let error = true;
 
     const usuario = await this.usuarioRepository.findOneBy({
-      email: loginDto.email,
+      username: loginDto.username,
     });
 
     if (usuario) {
@@ -54,6 +54,10 @@ export class AuthService {
       }
     )
 
-    return {acessToken};
+    return {
+      id_usuario: usuario.id_usuario,
+      username: usuario.username,
+      acessToken
+    };
   }
 }

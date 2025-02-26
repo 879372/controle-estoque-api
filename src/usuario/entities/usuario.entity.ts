@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('usuario')
 export class Usuario {
@@ -6,8 +6,11 @@ export class Usuario {
   id_usuario: number;
 
   @Column({ type: 'varchar', length: 150, unique: true })
-  email: string;
+  username: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
   password: string;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

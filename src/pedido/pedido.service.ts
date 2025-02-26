@@ -31,8 +31,10 @@ export class PedidoService {
 
     let quantidadeTotal = 0;
     let valorTotal = 0;
+    const datadeHoje = new Date();
 
     const itens = await Promise.all(
+
       itensPedido.map(async item => {
         const produto = await this.produtoRepository.findOne({
           where: { id_produto: item.produtoId },
@@ -49,6 +51,13 @@ export class PedidoService {
             `Estoque insuficiente para o produto ${produto.nome}`,
           );
         }
+
+        if (new Date(produto.data_validade) <= datadeHoje) {
+          throw new BadRequestException(
+            `${produto.nome} está vencido`,
+          );
+        }
+
 
         produto.estoque -= item.quantidade;
         await this.produtoRepository.save(produto);
@@ -67,6 +76,10 @@ export class PedidoService {
       }),
     );
 
+    if (itens.length <= 0) {
+      throw new BadRequestException('Adicione os produtos no pedido');
+    }
+  
     await this.itemPedidoRepository.save(itens);
 
     savedPedido.quantidade_total = quantidadeTotal;
@@ -134,31 +147,38 @@ export class PedidoService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
-    const { limit = 10, page = 1, search, startDate, endDate,  status } = paginationDto;
+    const { limit = 10, page = 1, search, startDate, endDate, status } = paginationDto;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const queryBuilder = this.pedidoRepository.createQueryBuilder('pedido')
+      .leftJoinAndSelect('pedido.cliente', 'cliente')
+      .leftJoinAndSelect('pedido.itensPedido', 'itensPedido')
+      .leftJoinAndSelect('itensPedido.produto', 'produto')
+      .take(limit)
+      .skip(offset);
 
     if (search) {
-      where.cliente = Like(`%${search}%`);
+      queryBuilder.andWhere('cliente.nome LIKE :search', { search: `%${search}%` });
     }
 
     if (status) {
-      where.status = Like(`%${status}%`);
+      queryBuilder.andWhere('pedido.status = :status', { status });
     }
 
-    if (startDate && endDate) {
-      where.data_pedido = Between(startDate, endDate);
+    if (startDate || endDate) {
+      let start = startDate ? `${startDate}T00:00:00.000Z` : null;
+      let end = endDate ? `${endDate}T23:59:59.999Z` : null;
+  
+      if (start && end) {
+        queryBuilder.andWhere('pedido.data_pedido BETWEEN :startDate AND :endDate', { startDate: start, endDate: end });
+      } else if (start) {
+        queryBuilder.andWhere('pedido.data_pedido >= :startDate', { startDate: start });
+      } else if (end) {
+        queryBuilder.andWhere('pedido.data_pedido <= :endDate', { endDate: end });
+      }
     }
 
-    const totalRecords = await this.pedidoRepository.count();
-
-    const pedidos = await this.pedidoRepository.find({
-      where,
-      take: limit,
-      skip: offset,
-      relations: ['cliente', 'itensPedido', 'itensPedido.produto'],
-    });
+    const [pedidos, totalRecords] = await queryBuilder.getManyAndCount();
 
     const pedidosFormatados = pedidos.map(pedido => {
       let total_produtos = 0;
